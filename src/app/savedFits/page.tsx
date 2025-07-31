@@ -1,17 +1,13 @@
-
-
-
-
-export default function HomePage() {
+export default function savedFitsPage() {
   return (
     <main className="grid-container">
        
       <div>
-        hi 
-
+        hi
       </div>
     </main>
-    
-  
+
+
   );
 }
+

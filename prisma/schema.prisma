@@ -10,11 +10,41 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Post {
+model outfit {
     id        Int      @id @default(autoincrement())
     name      String
+    tops      top[]
+    bottoms   bottom[]
+    footwears footwear[]
+    onepieces onepiece[]
+
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     @@index([name])
+}
+
+model top {
+    id        Int      @id @default(autoincrement())
+    name      String
+    outfits outfit[]
+    
+}
+
+model bottom {
+    id        Int      @id @default(autoincrement())
+    name      String
+    outfits   outfit[]
+}
+
+model footwear {
+    id        Int      @id @default(autoincrement())
+    name      String
+    outfits   outfit[]
+}
+
+model onepiece {
+    id        Int      @id @default(autoincrement())
+    name      String
+    outfits   outfit[]
 }
