@@ -1,50 +1,162 @@
-// This is your Prisma schema file,
+// This is your final Prisma schema file, ready for your project.
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "sqlite"
-    url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
-model outfit {
-    id        Int      @id @default(autoincrement())
-    name      String
-    tops      top[]
-    bottoms   bottom[]
-    footwears footwear[]
-    onepieces onepiece[]
+// 1. CORE OUTFIT & COMBINATION MODELS
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
 
-    @@index([name])
+model Outfit {
+  id          Int      @id @default(autoincrement())
+  name        String   // black sorceress dress
+  imageUrl    String?  // Optional image URL for the outfit
+
+  description String?  // Optional description for the outfit
+
+  // An outfit is composed of different pieces.
+  // It can have a layered top OR a one-piece, but usually not both.
+  topCombinationId Int?
+  topCombination   TopCombination? @relation(fields: [topCombinationId], references: [id])
+
+  onepieceId  Int?
+  onepiece    OnePiece?       @relation(fields: [onepieceId], references: [id])
+  
+  // A layered or one-piece outfit might not have a separate bottom.
+  bottomId    Int?
+  bottom      Bottom?         @relation(fields: [bottomId], references: [id])
+  
+  // An outfit always has footwear.
+  footwearId  Int
+  footwear    Footwear        @relation(fields: [footwearId], references: [id])
+
+  // Many-to-many relationship with Tag for searchability (Occasion, Style, etc.)
+  tags        Tag[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
 }
 
-model top {
-    id        Int      @id @default(autoincrement())
-    name      String
-    outfits outfit[]
-    
+model TopCombination {
+  id      Int    @id @default(autoincrement())
+  name    String // e.g., "Shirt and Jacket Combo"
+
+  // Layer 1: The piece closest to the skin (e.g., T-Shirt)
+  baseLayerId  Int
+  baseLayer    Top @relation("BaseLayer", fields: [baseLayerId], references: [id])
+
+  // Layer 2: The piece worn over the base layer (e.g., Jacket). Optional.
+  outerLayerId Int?
+  outerLayer   Top? @relation("OuterLayer", fields: [outerLayerId], references: [id])
+
+  // This combination can be used in many outfits.
+  outfits Outfit[]
 }
 
-model bottom {
-    id        Int      @id @default(autoincrement())
-    name      String
-    outfits   outfit[]
+
+// 2. INDIVIDUAL CLOTHING PIECE MODELS
+// These are the individual items in the wardrobe.
+
+model Top {
+  id        Int      @id @default(autoincrement())
+  name      String   // e.g., "Classic White Crewneck", "Blue Denim Jacket"
+  imageUrl  String?
+  topTypeId Int
+  topType   TopType  @relation(fields: [topTypeId], references: [id])
+  colors    Color[]
+
+  // Relations for layering
+  baseLayerIn  TopCombination[] @relation("BaseLayer")
+  outerLayerIn TopCombination[] @relation("OuterLayer")
 }
 
-model footwear {
-    id        Int      @id @default(autoincrement())
-    name      String
-    outfits   outfit[]
+model Bottom {
+  id         Int        @id @default(autoincrement())
+  name       String     // e.g., "Dark Wash Skinny Jeans", "Beige Linen Trousers"
+  imageUrl   String?
+  bottomTypeId Int
+  bottomType BottomType @relation(fields: [bottomTypeId], references: [id])
+  colors     Color[]
+  outfits    Outfit[]
 }
 
-model onepiece {
-    id        Int      @id @default(autoincrement())
-    name      String
-    outfits   outfit[]
+model OnePiece {
+  id           Int          @id @default(autoincrement())
+  name         String       // e.g., "Little Black Dress", "Floral Maxi Dress"
+  imageUrl     String?
+  onePieceTypeId Int
+  onePieceType OnePieceType @relation(fields: [onePieceTypeId], references: [id])
+  colors       Color[]
+  outfits      Outfit[]
+}
+
+model Footwear {
+  id           Int          @id @default(autoincrement())
+  name         String       // e.g., "White Leather Sneakers", "Black Ankle Boots"
+  imageUrl     String?
+  footwearTypeId Int
+  footwearType FootwearType @relation(fields: [footwearTypeId], references: [id])
+  colors       Color[]
+  outfits      Outfit[]
+}
+
+
+// 3. CLOTHING PROPERTY & TYPE MODELS
+
+model Color {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique // e.g., "Red", "Navy Blue", "Off-White"
+  hexCode   String     @unique // e.g., "#FF0000", "#000080", "#F5F5DC"
+  tops      Top[]
+  bottoms   Bottom[]
+  onepieces OnePiece[]
+  footwears Footwear[]
+}
+
+model TopType {
+  id   Int    @id @default(autoincrement())
+  name String @unique // e.g., "T-Shirt", "Shirt", "Kurta", "Jacket", "Blazer"
+  tops Top[]
+}
+
+model BottomType {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique // e.g., "Jeans", "Trousers", "Chinos", "Shorts", "Skirt"
+  bottoms Bottom[]
+}
+
+model OnePieceType {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique // e.g., "Dress", "Jumpsuit", "Anarkali", "Saree"
+  onepieces OnePiece[]
+}
+
+model FootwearType {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique // e.g., "Sneakers", "Loafers", "Sandals", "Heels", "Boots"
+  footwears Footwear[]
+}
+
+// 4. AI SEARCH & FILTERING MODELS
+
+model Tag {
+  id         Int         @id @default(autoincrement())
+  name       String      @unique // e.g., "Casual", "Work Wear", "Summer", "Boho", "Wedding Guest"
+  categoryId Int
+  category   TagCategory @relation(fields: [categoryId], references: [id])
+  outfits    Outfit[]
+}
+
+model TagCategory {
+  id   Int    @id @default(autoincrement())
+  name String @unique // e.g., "Occasion", "Style", "Season", "Weather"
+  tags Tag[]
 }
