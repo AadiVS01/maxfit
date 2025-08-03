@@ -1,7 +1,13 @@
 
+import CoverflowSlider from "./_components/CoverFlowSlider/CoverFlowSlider";
 import Style from "./_components/Home.module.css";
 
-
+const images = [
+  '/f21.jpg',
+  '/f21.jpg',
+  '/f21.jpg',
+  '/f21.jpg',
+];
 export default function HomePage() {
   return (
     <main className="p-5"> 
@@ -11,8 +17,13 @@ export default function HomePage() {
 
 
          <div className={`griditem ${Style.griditem}`}>vgghjighbyhji</div>
+         <div className={`griditem ${Style.griditem}`}>vgghjighbyhji</div>
+         <div className={`griditem ${Style.griditem}`}>vgghjighbyhji</div>
+         <div className={`griditem ${Style.griditem}`}>vgghjighbyhji</div>
 
       </div>
+
+      <CoverflowSlider images={images} />
     </main>
     
   

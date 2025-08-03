@@ -1,0 +1,95 @@
+/* General container styles */
+.container {
+  max-width: 1200px;
+  width: 100%;
+  padding: 2rem 1rem; /* Reduced padding for mobile */
+  margin: 0 auto;
+}
+
+.swiper_container {
+  height: 28rem; /* A more reasonable base height for mobile */
+  padding: 0;
+  position: relative;
+}
+
+/* Make the slide width flexible */
+.swiper_slide {
+  width: 80%; /* Use percentage for mobile-first flexibility */
+  height: auto; /* Let height be determined by aspect ratio */
+  position: relative;
+}
+
+.swiper_slide img {
+  width: 100%;
+  height: 100%;
+  border-radius: 1.5rem; /* Slightly smaller radius */
+  object-fit: cover;
+}
+
+/* --- Controls --- */
+.slider_controler {
+  position: relative;
+  bottom: 1rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slider_controler .swiper_button_next,
+.slider_controler .swiper_button_prev {
+  background: #fff;
+  width: 3rem; /* Smaller controls for mobile */
+  height: 3rem;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.slider_controler .swiper_button_next svg,
+.slider_controler .swiper_button_prev svg {
+    stroke-width: 2px;
+    stroke: #000;
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.pagination {
+  position: relative;
+  width: 10rem !important; /* Smaller pagination width */
+  bottom: 0;
+}
+
+.pagination .swiper-pagination-bullet {
+  filter: drop-shadow(0px 4px 12px rgba(18, 28, 53, 0.1));
+  background: #aaa;
+  width: 0.7rem;
+  height: 0.7rem;
+  opacity: 0.7;
+}
+
+.pagination .swiper-pagination-bullet-active {
+  background: #007aff;
+  opacity: 1;
+}
+
+/* --- Media Queries for Larger Screens --- */
+
+/* For Tablets and larger */
+@media (min-width: 768px) {
+  .swiper_container {
+    height: 42rem;
+  }
+  .swiper_slide {
+    width: 37rem; /* Restore the larger fixed width for coverflow effect */
+    height: 42rem;
+  }
+  .slider_controler .swiper_button_next,
+  .slider_controler .swiper_button_prev {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+}
