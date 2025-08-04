@@ -1,4 +1,4 @@
-
+'use server';
 import CoverflowSlider from "./_components/CoverFlowSlider/CoverFlowSlider";
 import Style from "./_components/Home.module.css";
 import SearchBar from "./_components/SearchBar/SearchBar";
@@ -9,7 +9,7 @@ const images = [
   '/f21.jpg',
   '/f21.jpg',
 ];
-export default function HomePage() {
+export default async function HomePage() {
   return (
     <main className="p-5"> 
 

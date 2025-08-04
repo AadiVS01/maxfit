@@ -10,7 +10,7 @@
     color:rgb(0, 0, 0);
     width: 100%;
 
-    min-height: 50px;
+    height: 3rem;
     margin-bottom: 1rem;
     
 
@@ -25,21 +25,28 @@
     background-color: rgb(136, 136, 136);
     border-radius: 10px;
     font-weight: 600;
-   
+   color: white;
     width: 100%;
 
     min-height: 50px;
+    height: 2.5rem;
     margin-bottom: 1rem;
-
+    
+    
 }
-.input{
-    color:white;
+.searchContainer input {
     width: 100%;
+    color: white;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    padding: 0;
+    padding-top: 14px;
     
 }
 
 .search-icon {
-    margin-right: 8px;
+
     width: 2rem;
     height: 2rem;
 
@@ -55,7 +62,20 @@
   cursor: default;
 
 }
-
+.input {
+    width: 100%;
+    max-width: 600px;
+    height: 10px;
+    width: 100%;
+    flex: 1;
+    padding-left: 2rem;
+    min-height: 50px;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    background-color: rgb(61, 61, 61);
+    color: rgb(255, 255, 255);
+    
+}
 .button {
     padding: 10px 15px;
     margin-left: 10px;
