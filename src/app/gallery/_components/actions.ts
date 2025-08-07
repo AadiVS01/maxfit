@@ -3,11 +3,24 @@ import z from "zod";
 import { safeParse } from "zod/v4-mini";
 import { db } from "~/server/db";
 import fs from "fs/promises";
+import { randomUUID } from "crypto";
+import path from "path";
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+import { NextResponse } from "next/server";
 
-const fileSchema = z.instanceof(File, { message: "Required" })
-const imageSchema = fileSchema.refine(
-  file => file.size === 0 || file.type.startsWith("image/")
-)
+
+const fileSchema = z.custom<File>(
+  (file) => file instanceof Blob, { message: "Invalid file" }
+);
+
+const imageSchema = fileSchema
+  .refine(file => file.size <= MAX_FILE_SIZE, {
+    message: "File too large"
+  })
+  .refine(file => file.size === 0 || file.type.startsWith("image/"), {
+    message: "Only images allowed"
+  });
+
 export async function upload(formData: FormData) {
     
    
@@ -23,8 +36,9 @@ export async function upload(formData: FormData) {
 
     try {
         await fs.mkdir("public/uploads", { recursive: true });
-        const filePath = `public/uploads/${image.name}`;
+        const filePath = `public/uploads/${randomUUID()}-${image.name}`;
 
+         
         await fs.writeFile(filePath, Buffer.from(await image.arrayBuffer()));
         console.log("Image uploaded successfully:", filePath);
     
@@ -33,14 +47,12 @@ export async function upload(formData: FormData) {
 
     catch (error) {
         console.error("Error uploading image:", error);
-        return new Response("Error uploading image");
+        return NextResponse.json({ message: "Error uploading image" }, { status: 500 });
     }
 
     console.log("Image upload function called");
-    
+    return NextResponse.json({ message: "Upload successful" }, { status: 200 });
 
-    return new Response("Wiw");
-                 
 
 
 }

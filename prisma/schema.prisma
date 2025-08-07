@@ -12,29 +12,43 @@ datasource db {
 
 // 1. CORE OUTFIT & COMBINATION MODELS
 
+model User {
+  id       Int       @id @default(autoincrement())
+  email    String    @unique
+  outfits  Outfit[]
+  tops     Top[]
+  bottoms  Bottom[]
+  onepieces OnePiece[]
+  footwears Footwear[]
+  outfitUsages OutfitUsage[]
+  weatherConditions WeatherCondition[]
+}
+
 
 model Outfit {
   id          Int      @id @default(autoincrement())
   name        String   // black sorceress dress
   imageUrl    String?  // Optional image URL for the outfit
 
-  description String?  // Optional description for the outfit
-
-  // An outfit is composed of different pieces.
-  // It can have a layered top OR a one-piece, but usually not both.
+  description String?  
   topCombinationId Int?
   topCombination   TopCombination? @relation(fields: [topCombinationId], references: [id])
 
   onepieceId  Int?
   onepiece    OnePiece?       @relation(fields: [onepieceId], references: [id])
   
-  // A layered or one-piece outfit might not have a separate bottom.
   bottomId    Int?
   bottom      Bottom?         @relation(fields: [bottomId], references: [id])
   
-  // An outfit always has footwear.
+
   footwearId  Int
   footwear    Footwear        @relation(fields: [footwearId], references: [id])
+ 
+  userId      Int
+  user        User            @relation(fields: [userId], references: [id])
+
+  outfitUsages OutfitUsage[] 
+  weatherConditions WeatherCondition[] // Link to weather conditions for this outfit
 
   // Many-to-many relationship with Tag for searchability (Occasion, Style, etc.)
   tags        Tag[]
@@ -57,6 +71,7 @@ model TopCombination {
   outerLayerId Int?
   outerLayer   Top? @relation("OuterLayer", fields: [outerLayerId], references: [id])
 
+  
   // This combination can be used in many outfits.
   outfits Outfit[]
 }
@@ -72,7 +87,8 @@ model Top {
   topTypeId Int
   topType   TopType  @relation(fields: [topTypeId], references: [id])
   colors    Color[]
-
+  userId      Int
+  user        User            @relation(fields: [userId], references: [id])
   // Relations for layering
   baseLayerIn  TopCombination[] @relation("BaseLayer")
   outerLayerIn TopCombination[] @relation("OuterLayer")
@@ -86,6 +102,8 @@ model Bottom {
   bottomType BottomType @relation(fields: [bottomTypeId], references: [id])
   colors     Color[]
   outfits    Outfit[]
+  userId      Int
+  user        User            @relation(fields: [userId], references: [id])
 }
 
 model OnePiece {
@@ -96,6 +114,8 @@ model OnePiece {
   onePieceType OnePieceType @relation(fields: [onePieceTypeId], references: [id])
   colors       Color[]
   outfits      Outfit[]
+  userId      Int
+  user        User            @relation(fields: [userId], references: [id])
 }
 
 model Footwear {
@@ -106,6 +126,8 @@ model Footwear {
   footwearType FootwearType @relation(fields: [footwearTypeId], references: [id])
   colors       Color[]
   outfits      Outfit[]
+  userId      Int
+  user        User            @relation(fields: [userId], references: [id])
 }
 
 
@@ -153,10 +175,35 @@ model Tag {
   categoryId Int
   category   TagCategory @relation(fields: [categoryId], references: [id])
   outfits    Outfit[]
+  weatherConditions WeatherCondition[] 
+  createdAt  DateTime    @default(now())
 }
 
 model TagCategory {
   id   Int    @id @default(autoincrement())
   name String @unique // e.g., "Occasion", "Style", "Season", "Weather"
   tags Tag[]
+}
+
+model OutfitUsage {
+  id        Int      @id @default(autoincrement())
+  outfit    Outfit   @relation(fields: [outfitId], references: [id])
+  outfitId  Int
+  wornAt    DateTime @default(now())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  weatherConditionId Int?
+  weatherCondition WeatherCondition? @relation(fields: [weatherConditionId], references: [id])
+}
+
+
+model WeatherCondition {
+  id    Int    @id @default(autoincrement())
+  name  String @unique 
+  tags  Tag[]          
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  outfit Outfit[]
+  outfitUsages OutfitUsage[]
+  
 }
