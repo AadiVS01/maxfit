@@ -41,7 +41,122 @@ export async function upload(formData: FormData) {
          
         await fs.writeFile(filePath, Buffer.from(await image.arrayBuffer()));
         console.log("Image uploaded successfully:", filePath);
-    
+        //image goes to model and the category, type, name, color, pattern
+
+        const category = "Top";
+        const Type = "shirt";
+        const Colors = [{ name: "unknown", hex: "#FFFFFF" }];
+        const Name = "name";
+        const userId = 123; // Replace with actual user ID logic
+
+        if (category === "Top") {
+          await db.top.create({
+            data: {
+              name: Name, 
+              imageUrl: filePath, 
+              
+              topType: {
+                connectOrCreate: {
+                  where: { name: Type },   
+                  create: { name: Type }
+                }
+              },
+
+        // Link to Colors (can be multiple)
+              colors: {
+                connectOrCreate: Colors.map(c => ({
+                  where: { name: c.name },
+                  create: { name: c.name, hexCode: c.hex }
+                }))
+              },
+
+        // You’ll also need user reference
+        user: {
+          connect: { id: userId }  // whoever uploaded this
+        }
+      }
+    });
+        }
+        else if (category === "Bottom") {
+          await db.bottom.create({
+            data: {
+              name: Name,
+              imageUrl: filePath,
+
+              bottomType: {
+                connectOrCreate: {
+                  where: { name: Type },
+                  create: { name: Type }
+                }
+              },
+
+              colors: {
+                connectOrCreate: Colors.map(c => ({
+                  where: { name: c.name },
+                  create: { name: c.name, hexCode: c.hex }
+                }))
+              },
+
+              user: {
+                connect: { id: userId }
+              }
+      }
+    });
+        }
+
+        else if (category === "OnePiece") {
+          await db.onePiece.create({
+            data: {
+              name: Name,
+              imageUrl: filePath,
+
+              onePieceType: {
+                connectOrCreate: {
+                  where: { name: Type },
+                  create: { name: Type }
+                }
+              },
+
+              colors: {
+                connectOrCreate: Colors.map(c => ({
+                  where: { name: c.name },
+                  create: { name: c.name, hexCode: c.hex }
+                }))
+              },
+
+              user: {
+                connect: { id: userId }
+              }
+            }
+          });
+        }
+
+        else if (category === "Footwear") {
+          await db.footwear.create({
+            data: {
+              name: Name,
+              imageUrl: filePath,
+
+              footwearType: {
+                connectOrCreate: {
+                  where: { name: Type },
+                  create: { name: Type }
+                }
+              },
+
+              colors: {
+                connectOrCreate: Colors.map(c => ({
+                  where: { name: c.name },
+                  create: { name: c.name, hexCode: c.hex }
+                }))
+              },
+
+              user: {
+                connect: { id: userId }
+              }
+            }
+          });
+        }
     
     }
 
