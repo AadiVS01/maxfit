@@ -6,7 +6,7 @@ import fs from "fs/promises";
 import { randomUUID } from "crypto";
 import path from "path";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-import { NextResponse } from "next/server";
+
 
 
 const fileSchema = z.custom<File>(
@@ -25,14 +25,16 @@ export async function upload(formData: FormData) {
     
    
 
-    const result=imageSchema.safeParse(formData.get("image"));
-
-    if(!result.success){
-        console.error("Image upload failed:", result.error);
-        return new Response("Image upload failed");
-    }
-
-    const image=result.data;
+  const result = imageSchema.safeParse(formData.get("image"));
+  if (!result.success) {
+    console.error("Image upload failed:", result.error);
+    return;
+  }
+  const image = result.data;
+  if (!image) {
+    console.error("Invalid image");
+    return;
+  }
 
     try {
         await fs.mkdir("public/uploads", { recursive: true });
@@ -158,16 +160,9 @@ export async function upload(formData: FormData) {
           });
         }
     
-    }
-
-    catch (error) {
-        console.error("Error uploading image:", error);
-        return NextResponse.json({ message: "Error uploading image" }, { status: 500 });
-    }
-
-    console.log("Image upload function called");
-    return NextResponse.json({ message: "Upload successful" }, { status: 200 });
-
-
-
+  }
+  catch (error) {
+    console.error("Error uploading image:", error);
+  }
+  console.log("Image upload function called");
 }
