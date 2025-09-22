@@ -1,3 +1,5 @@
+'use server';
+
 import { db } from "~/server/db";
 import Style  from "./_components/gallery.module.css";
 import Image from "next/image";
