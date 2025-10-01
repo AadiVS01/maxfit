@@ -1,3 +1,15 @@
+.uploadInput {
+  display: block;
+
+  border: 2px solid #007bff;
+  margin-top: 20px;;
+  margin-bottom: 20px;
+  background: #fff;
+  color: #333;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 6px;
+}
 .gridcontainer {
   display: grid; 
   grid-template-columns: repeat(3, 1fr); 
@@ -26,10 +38,25 @@
 }
 
 .uploadButton {
-  background-color: #28a745;
-  color: white;
-  padding: 0.5rem 1rem;
+  background: linear-gradient(90deg, #28a745 0%, #218838 100%);
+  color: #fff;
+  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.15);
   cursor: pointer;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+}
+
+.uploadButton:hover {
+  background: linear-gradient(90deg, #218838 0%, #28a745 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(40, 167, 69, 0.25);
+}
+
+.uploadButton:active {
+  background: #1e7e34;
+  transform: scale(0.98);
 }

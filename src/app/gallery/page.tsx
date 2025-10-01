@@ -1,5 +1,4 @@
-'use server';
-
+"use server";
 import { db } from "~/server/db";
 import Style  from "./_components/gallery.module.css";
 import Image from "next/image";
@@ -66,30 +65,33 @@ async function FootwearPics() {
 }
 
 
-export default  function GalleryPage() {
 
-  
+export default async function GalleryPage() {
+
+
+
   return (
     <main className="p-5">
         <h1 className="text-2xl font-bold mb-4 text-white">Gallery</h1>
       
         {/* Your content items here */}
-        <div className={`gridcontainer ${Style.gridcontainer}`}>
-         <form action={async (formData) => { await upload(formData); }}>
+        <form action={upload}>
 
-          <div className={`grid-item ${Style.gridItem}`}>
-            <input type="file" name="image" accept="image/*" required />
-            <button type="submit" className={Style.uploadButton}>Upload Image</button>
-          </div>
+          
+           <button type="submit" className={Style.uploadButton}>Upload Image</button>
+           <input type="file" name="image" accept="image/*" required className={Style.uploadInput} />
+            
         </form>
+        <div className={`gridcontainer ${Style.gridcontainer}`}>
+         
 
           <div className={`grid-item ${Style.gridItem}`}>
-          <Image 
-            src="/f21.jpg" 
-            alt="gallery image" 
-            width={300} 
-            height={300}
-            className={Style.gridItemimg}/>
+            <Image 
+              src="/f21.jpg" 
+              alt="gallery image" 
+              width={300} 
+              height={300}
+              className={Style.gridItemimg}/>
           </div>
        
   

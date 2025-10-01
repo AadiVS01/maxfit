@@ -14,6 +14,12 @@ model User {
   email     String        @unique
   outfits   Outfit[]      
   usages    OutfitUsage[]
+  
+  // Add clothing relationships
+  tops      Top[]
+  bottoms   Bottom[]
+  onepieces OnePiece[]
+  footwear  Footwear[]
 
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
@@ -49,45 +55,121 @@ model Outfit {
   @@index([name])
 }
 
+// TYPE MODELS
+model TopType {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  tops Top[]
+}
+
+model BottomType {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  bottoms Bottom[]
+}
+
+model OnePieceType {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  onepieces OnePiece[]
+}
+
+model FootwearType {
+  id       Int        @id @default(autoincrement())
+  name     String     @unique
+  footwear Footwear[]
+}
+
+model Color {
+  id       Int        @id @default(autoincrement())
+  name     String     @unique
+  hexCode  String
+  
+  tops      Top[]      @relation("TopColors")
+  bottoms   Bottom[]   @relation("BottomColors")
+  onepieces OnePiece[] @relation("OnePieceColors")
+  footwear  Footwear[] @relation("FootwearColors")
+}
+
 // CLOTHING PIECES
 model Top {
   id        Int      @id @default(autoincrement())
   name      String
-  color     String?
   imageUrl  String?
   embedding Float[]
 
+  topType   TopType? @relation(fields: [topTypeId], references: [id])
+  topTypeId Int?
+
+  colors    Color[]  @relation("TopColors")
+  
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+
   outfits   Outfit[] @relation("OutfitTops")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Bottom {
   id        Int      @id @default(autoincrement())
   name      String
-  color     String?
   imageUrl  String?
   embedding Float[]
 
+  bottomType   BottomType? @relation(fields: [bottomTypeId], references: [id])
+  bottomTypeId Int?
+
+  colors    Color[]  @relation("BottomColors")
+  
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+
   outfits   Outfit[] @relation("OutfitBottoms")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model OnePiece {
   id        Int      @id @default(autoincrement())
   name      String
-  color     String?
   imageUrl  String?
   embedding Float[]
 
+  onePieceType   OnePieceType? @relation(fields: [onePieceTypeId], references: [id])
+  onePieceTypeId Int?
+
+  colors    Color[]  @relation("OnePieceColors")
+  
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+
   outfits   Outfit[] @relation("OutfitOnePieces")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Footwear {
   id        Int      @id @default(autoincrement())
   name      String
-  color     String?
   imageUrl  String?
   embedding Float[]
 
+  footwearType   FootwearType? @relation(fields: [footwearTypeId], references: [id])
+  footwearTypeId Int?
+
+  colors    Color[]  @relation("FootwearColors")
+  
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+
   outfits   Outfit[] @relation("OutfitFootwears")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Accessory {
