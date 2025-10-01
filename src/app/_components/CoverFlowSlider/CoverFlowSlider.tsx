@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -47,7 +48,7 @@ export default function CoverflowSlider({ images }: CoverflowSliderProps) {
       >
         {images.map((image, index) => (
           <SwiperSlide key={index} className={styles.swiper_slide}>
-            <img src={image} alt={`Slide ${index + 1}`} />
+            <Image src={image} alt={`Slide ${index + 1}`} width={300} height={400} className={styles.slide_image} />
           </SwiperSlide>
         ))}
 

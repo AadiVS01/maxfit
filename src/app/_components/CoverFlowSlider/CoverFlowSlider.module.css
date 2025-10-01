@@ -19,7 +19,8 @@
   position: relative;
 }
 
-.swiper_slide img {
+.swiper_slide img,
+.slide_image {
   width: 100%;
   height: 100%;
   border-radius: 1.5rem; /* Slightly smaller radius */

@@ -69,21 +69,28 @@ Respond with ONLY the JSON object, no other text.`;
       }
     ];
 
-    const result = await model.generateContent(imageParts);
-    const response = await result.response;
+    const result = model.generateContent(imageParts);
+    const response = (await result).response;
     const text = response.text();
     
     console.log("Raw AI response:", text);
     
     // Clean the response and extract JSON
     const cleanedText = text.replace(/```json\s*|\s*```/g, '').trim();
-    const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+    const jsonMatch = /\{[\s\S]*\}/.exec(cleanedText);
     
     if (!jsonMatch) {
       throw new Error("No valid JSON found in AI response");
     }
     
-    const parsedResult = JSON.parse(jsonMatch[0]);
+    const parsedResult = JSON.parse(jsonMatch[0]) as {
+      category: string;
+      type: string;
+      colors: Array<{ name: string; hex: string }>;
+      name: string;
+      pattern: string;
+      style: string;
+    };
     console.log("Parsed AI classification:", parsedResult);
     
     return parsedResult;
@@ -110,37 +117,49 @@ Category options: Top, Bottom, OnePiece, Footwear`;
         }
       ];
 
-      const result = await visionModel.generateContent(visionParts);
-      const response = await result.response;
+      const result = visionModel.generateContent(visionParts);
+      const response = (await result).response;
       const text = response.text();
       
       console.log("Vision model response:", text);
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      const jsonMatch = /\{[\s\S]*\}/.exec(text);
       if (jsonMatch) {
-        return JSON.parse(jsonMatch[0]);
+        return JSON.parse(jsonMatch[0]) as {
+          category: string;
+          type: string;
+          colors: Array<{ name: string; hex: string }>;
+          name: string;
+          pattern: string;
+          style: string;
+        };
       }
     } catch (visionError) {
       console.error("Vision model also failed:", visionError);
       
       // Try the basic gemini-pro without vision
       try {
-        console.log("Trying text-only classification based on filename...");
+        console.log("Trying text-only classification...");
         const textModel = genAI.getGenerativeModel({ model: "gemini-pro" });
         
-        // Extract filename for basic classification
-        const filename = imageBuffer.toString('base64').substring(0, 100);
         const basicPrompt = `Based on this being a clothing image, provide a JSON classification:
 {"category": "Top", "type": "shirt", "colors": [{"name": "blue", "hex": "#0000FF"}], "name": "Clothing Item", "pattern": "solid", "style": "casual"}
 
 Return only the JSON object.`;
 
-        const textResult = await textModel.generateContent(basicPrompt);
-        const textResponse = await textResult.response;
+        const textResult = textModel.generateContent(basicPrompt);
+        const textResponse = (await textResult).response;
         const textData = textResponse.text();
         
-        const textJsonMatch = textData.match(/\{[\s\S]*\}/);
+        const textJsonMatch = /\{[\s\S]*\}/.exec(textData);
         if (textJsonMatch) {
-          return JSON.parse(textJsonMatch[0]);
+          return JSON.parse(textJsonMatch[0]) as {
+            category: string;
+            type: string;
+            colors: Array<{ name: string; hex: string }>;
+            name: string;
+            pattern: string;
+            style: string;
+          };
         }
       } catch (textError) {
         console.error("All AI models failed:", textError);
@@ -198,9 +217,10 @@ export async function upload(formData: FormData) {
     // Upload to Supabase Storage instead of local storage
     const fileName = `${randomUUID()}-${image.name}`;
     const imageBuffer = Buffer.from(await image.arrayBuffer());
+    let imageUrl: string;
     
     // Upload to Supabase storage bucket
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('clothing-images') // Make sure this bucket exists in your Supabase project
       .upload(fileName, imageBuffer, {
         contentType: image.type,
@@ -215,7 +235,7 @@ export async function upload(formData: FormData) {
       const localFilePath = `public/uploads/${fileName}`;
       await fs.writeFile(localFilePath, imageBuffer);
       console.log("Image uploaded to local storage (fallback):", localFilePath);
-      var imageUrl = localFilePath;
+      imageUrl = localFilePath;
     } else {
       // Get the public URL for the uploaded image
       const { data: publicUrlData } = supabase.storage
@@ -230,15 +250,22 @@ export async function upload(formData: FormData) {
     const classification = await classifyImage(imageBuffer, image.type);
     console.log("Image classification:", classification);
 
-    const { category, type, colors, name, pattern, style } = classification;
-    const userId = 1; // Replace with actual user ID logic
+    const { category, name } = classification as {
+      category: string;
+      name: string;
+      type?: string;
+      colors?: Array<{ name: string; hex: string }>;
+      pattern?: string;
+      style?: string;
+    };
+    // Note: type, colors, pattern, style will be used later for enhanced features
 
     // Store in database with Supabase URL
     if (category === "Top") {
       await db.top.create({
         data: {
-          name: name,
-          imageUrl: imageUrl,
+          name: String(name),
+          imageUrl: String(imageUrl),
           embedding: [] // Empty array for now
         }
       });
@@ -246,8 +273,8 @@ export async function upload(formData: FormData) {
     else if (category === "Bottom") {
       await db.bottom.create({
         data: {
-          name: name,
-          imageUrl: imageUrl,
+          name: String(name),
+          imageUrl: String(imageUrl),
           embedding: [] // Empty array for now
         }
       });
@@ -255,8 +282,8 @@ export async function upload(formData: FormData) {
     else if (category === "OnePiece") {
       await db.onePiece.create({
         data: {
-          name: name,
-          imageUrl: imageUrl,
+          name: String(name),
+          imageUrl: String(imageUrl),
           embedding: [] // Empty array for now
         }
       });
@@ -264,8 +291,8 @@ export async function upload(formData: FormData) {
     else if (category === "Footwear") {
       await db.footwear.create({
         data: {
-          name: name,
-          imageUrl: imageUrl,
+          name: String(name),
+          imageUrl: String(imageUrl),
           embedding: [] // Empty array for now
         }
       });
